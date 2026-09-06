@@ -1,0 +1,19 @@
+services:
+  - type: worker
+    name: bhavanam-telegram-bot
+    env: docker
+    dockerfilePath: ./Dockerfile
+    autoDeploy: true
+    disk:
+      name: bhavanam-data
+      mountPath: /app/data
+      sizeGB: 1
+    envVars:
+      - key: BOT_TOKEN
+        sync: false
+      - key: TARGET_CHAT_ID
+        sync: false
+      - key: ENABLE_SCHEDULED_REMINDERS
+        value: "true"
+      - key: TRASH_SCHEDULE_CRON
+        value: "0 20 * * *"
