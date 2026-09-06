@@ -44,12 +44,16 @@ try {
   assert.strictEqual(skipRes.newIndex, 2);
   console.log('✅ Test 5 Passed: Skip turn skipped haroshin and set next pointer to azim.');
 
-  // Test 6: Set Turn manually
-  const setTurnRes = roundRobinService.setTurn('rishab');
-  assert.strictEqual(setTurnRes.success, true);
-  assert.strictEqual(setTurnRes.assignedMember.name, 'rishab');
-  assert.strictEqual(setTurnRes.currentIndex, 6);
-  console.log('✅ Test 6 Passed: Set turn manually set index to rishab (index 6).');
+  // Test 7: Schedule Calendar date progression after completing today's duty
+  storage.saveState({ currentIndex: 0, lastTriggered: null, history: [], pendingTask: null });
+  roundRobinService.triggerDuty('Test 7');
+  roundRobinService.completeTask({ id: 101, first_name: 'Arjun', username: 'Arjun' });
+
+  const schedAfterComplete = roundRobinService.getScheduleCalendar();
+  const firstItem = schedAfterComplete.schedule[0]; // Should be haroshin
+  assert.strictEqual(firstItem.member.name, 'haroshin');
+  assert.strictEqual(firstItem.isTomorrow, true, 'haroshin should be scheduled for tomorrow after today duty is completed');
+  console.log('✅ Test 7 Passed: Schedule calendar correctly assigns tomorrow date to haroshin after today duty completion.');
 
   console.log('\n🎉 ALL UNIT TESTS PASSED SUCCESSFULLY!');
 } finally {

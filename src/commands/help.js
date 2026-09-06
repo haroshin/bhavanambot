@@ -30,5 +30,5 @@ export function setupHelpCommands(bot) {
   };
 
   bot.command('help', handleHelp);
-  bot.hears(/^help$/i, handleHelp);
+  bot.hears(/^\s*help\s*$/i, handleHelp);
 }

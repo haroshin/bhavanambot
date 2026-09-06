@@ -1,5 +1,16 @@
 import { storage } from '../storage/store.js';
 
+function isSameDay(d1, d2) {
+  if (!d1 || !d2) return false;
+  const a = new Date(d1);
+  const b = new Date(d2);
+  return (
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate()
+  );
+}
+
 export const roundRobinService = {
   /**
    * Get duty calendar schedule for all members with DD-MM-YYYY dates.
@@ -14,6 +25,15 @@ export const roundRobinService = {
     const currentIndex = (state.currentIndex || 0) % members.length;
     const now = new Date();
 
+    // Check if today's task was already completed today
+    let todayCompleted = false;
+    if (state.history && state.history.length > 0 && state.history[0].completedAt) {
+      if (isSameDay(state.history[0].completedAt, now) && (!state.pendingTask || state.pendingTask.status !== 'PENDING')) {
+        todayCompleted = true;
+      }
+    }
+
+    const dateOffset = todayCompleted ? 1 : 0;
     const schedule = [];
 
     for (let i = 0; i < members.length; i++) {
@@ -21,19 +41,21 @@ export const roundRobinService = {
       const member = members[idx];
 
       const dutyDate = new Date(now);
-      dutyDate.setDate(now.getDate() + i);
+      dutyDate.setDate(now.getDate() + i + dateOffset);
 
       const day = String(dutyDate.getDate()).padStart(2, '0');
       const month = String(dutyDate.getMonth() + 1).padStart(2, '0');
       const year = dutyDate.getFullYear();
       const dateStr = `${day}-${month}-${year}`;
 
+      const totalOffsetDays = i + dateOffset;
+
       schedule.push({
         member,
         dateStr,
         stepIndex: i,
-        isToday: i === 0,
-        isTomorrow: i === 1
+        isToday: totalOffsetDays === 0,
+        isTomorrow: totalOffsetDays === 1
       });
     }
 
@@ -55,6 +77,16 @@ export const roundRobinService = {
 
     const state = storage.getState();
     const currentIndex = (state.currentIndex || 0) % members.length;
+    const now = new Date();
+
+    let todayCompleted = false;
+    if (state.history && state.history.length > 0 && state.history[0].completedAt) {
+      if (isSameDay(state.history[0].completedAt, now) && (!state.pendingTask || state.pendingTask.status !== 'PENDING')) {
+        todayCompleted = true;
+      }
+    }
+
+    const dateOffset = todayCompleted ? 1 : 0;
 
     let targetIndex = -1;
 
@@ -83,7 +115,9 @@ export const roundRobinService = {
 
     const targetMember = members[targetIndex];
     const currentMember = members[currentIndex];
-    const turnsRemaining = (targetIndex - currentIndex + members.length) % members.length;
+
+    const rawStepIndex = (targetIndex - currentIndex + members.length) % members.length;
+    const turnsRemaining = rawStepIndex + dateOffset;
 
     return {
       success: true,

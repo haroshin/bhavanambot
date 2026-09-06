@@ -116,7 +116,7 @@ export function setupTrashCommands(bot) {
   };
 
   bot.command('done', handleDone);
-  bot.hears(/^done$/i, handleDone);
+  bot.hears(/^\s*done\s*$/i, handleDone);
 
   /**
    * Command: /trash_status or /status

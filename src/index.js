@@ -72,11 +72,20 @@ async function bootstrap() {
     bot.stop('SIGTERM');
   });
 
+  // Global error handler
+  bot.catch((err, ctx) => {
+    console.error(`[Telegraf Error] update type: ${ctx.updateType}`, err);
+  });
+
   // Launch bot long polling
   try {
     const botInfo = await bot.telegram.getMe();
     console.log(`✅ Bhavanam Bot (@${botInfo.username}) is online and listening for Telegram commands!`);
     console.log('----------------------------------------------------');
+    
+    // Clear any existing webhook to ensure long polling works cleanly
+    await bot.telegram.deleteWebhook().catch(() => {});
+
     await bot.launch();
   } catch (err) {
     console.error('❌ Failed to launch Telegram Bot:', err.message);
