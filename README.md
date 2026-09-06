@@ -13,7 +13,7 @@ The bot comes pre-filled with your rotation list:
 4. **Abhijith**
 5. **surusu**
 6. **jais**
-7. **rishab**
+7. **Yohaan_libert**
 8. **noel**
 
 ---
@@ -90,7 +90,7 @@ npm run sim
 | `/trash` or `/cleantrash` | Triggers trash cleaning duty alert tagging the next assigned member in rotation. |
 | `/trash_status` | View current turn holder, member list, and past duty history. |
 | `/skip_trash` | Skip the current turn holder and move to the next person. |
-| `/set_turn <name/index>` | Override current turn manually (e.g. `/set_turn rishab` or `/set_turn 3`). |
+| `/set_turn <name/index>` | Override current turn manually (e.g. `/set_turn Yohaan_libert` or `/set_turn 3`). |
 | `/listmembers` | View all members in rotation order. |
 | `/addmember <name>` | Add a new member to the rotation. |
 | `/removemember <name/index>` | Remove a member from the rotation. |

@@ -44,6 +44,13 @@ try {
   assert.strictEqual(skipRes.newIndex, 2);
   console.log('✅ Test 5 Passed: Skip turn skipped haroshin and set next pointer to azim.');
 
+  // Test 6: Set Turn manually
+  const setTurnRes = roundRobinService.setTurn('Yohaan_libert');
+  assert.strictEqual(setTurnRes.success, true);
+  assert.strictEqual(setTurnRes.assignedMember.name, 'Yohaan_libert');
+  assert.strictEqual(setTurnRes.currentIndex, 6);
+  console.log('✅ Test 6 Passed: Set turn manually set index to Yohaan_libert (index 6).');
+
   // Test 7: Schedule Calendar date progression after completing today's duty
   storage.saveState({ currentIndex: 0, lastTriggered: null, history: [], pendingTask: null });
   roundRobinService.triggerDuty('Test 7');
