@@ -1,3 +1,4 @@
+import http from 'http';
 import { Telegraf } from 'telegraf';
 import { config } from './config.js';
 import { storage } from './storage/store.js';
@@ -8,9 +9,29 @@ import { setupFineCommands } from './commands/fines.js';
 import { setupHelpCommands } from './commands/help.js';
 import { setupScheduler } from './services/scheduler.js';
 
+/**
+ * Start lightweight HTTP health check server for Render Free Web Service compatibility.
+ */
+function startHealthCheckServer() {
+  const port = process.env.PORT || 3000;
+  const server = http.createServer((req, res) => {
+    res.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8' });
+    res.end('🏡 Bhavanam Telegram Bot is online and healthy!\n');
+  });
+
+  server.listen(port, () => {
+    console.log(`[HTTP] Health check server listening on port ${port}`);
+  });
+}
+
+
 async function bootstrap() {
   console.log('----------------------------------------------------');
   console.log('🏡 Starting Bhavanam Telegram Home Manager Bot...');
+
+  // Start HTTP server for Render Free Web Service health check
+  startHealthCheckServer();
+
 
   if (!config.botToken || config.botToken === 'your_telegram_bot_token_here') {
     console.error('\n❌ ERROR: BOT_TOKEN is missing or not set in .env file!');

@@ -1,13 +1,10 @@
 services:
-  - type: worker
+  - type: web
     name: bhavanam-telegram-bot
     env: docker
+    plan: free
     dockerfilePath: ./Dockerfile
     autoDeploy: true
-    disk:
-      name: bhavanam-data
-      mountPath: /app/data
-      sizeGB: 1
     envVars:
       - key: BOT_TOKEN
         sync: false

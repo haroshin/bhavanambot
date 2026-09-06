@@ -19,6 +19,8 @@ RUN mkdir -p /app/data
 
 # Environment variable defaults
 ENV NODE_ENV=production
+ENV PORT=3000
+EXPOSE 3000
 
 # Command to start the Telegram bot
 CMD ["node", "src/index.js"]
