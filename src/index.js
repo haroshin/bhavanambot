@@ -77,19 +77,30 @@ async function bootstrap() {
     console.error(`[Telegraf Error] update type: ${ctx.updateType}`, err);
   });
 
-  // Launch bot long polling
-  try {
-    const botInfo = await bot.telegram.getMe();
-    console.log(`✅ Bhavanam Bot (@${botInfo.username}) is online and listening for Telegram commands!`);
-    console.log('----------------------------------------------------');
-    
-    // Clear any existing webhook to ensure long polling works cleanly
-    await bot.telegram.deleteWebhook().catch(() => {});
+  // Launch bot long polling with automatic retry handling for 409 Conflicts during Render deploys
+  const maxRetries = 5;
+  const delayMs = 6000;
 
-    await bot.launch();
-  } catch (err) {
-    console.error('❌ Failed to launch Telegram Bot:', err.message);
-    process.exit(1);
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      const botInfo = await bot.telegram.getMe();
+      console.log(`✅ Bhavanam Bot (@${botInfo.username}) is online and listening for Telegram commands!`);
+      console.log('----------------------------------------------------');
+      
+      // Clear any existing webhook to ensure long polling works cleanly
+      await bot.telegram.deleteWebhook({ drop_pending_updates: true }).catch(() => {});
+
+      await bot.launch();
+      break;
+    } catch (err) {
+      console.error(`❌ Launch attempt ${attempt}/${maxRetries} failed:`, err.message);
+      if (attempt < maxRetries && (err.message.includes('409') || err.message.includes('Conflict'))) {
+        console.log(`[Bot] Retrying connection in ${delayMs / 1000}s (waiting for previous instance to terminate)...`);
+        await new Promise(resolve => setTimeout(resolve, delayMs));
+      } else {
+        process.exit(1);
+      }
+    }
   }
 }
 
