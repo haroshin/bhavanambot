@@ -171,17 +171,30 @@ export const roundRobinService = {
 
     const state = storage.getState();
     let currentIndex = (state.currentIndex || 0) % members.length;
+    const now = new Date();
 
-    // If there is already a pending trash task, return existing assigned member
+    // If there is already a pending trash task
     if (state.pendingTask && state.pendingTask.status === 'PENDING') {
-      const assignedMember = state.pendingTask.assignedMember;
-      const nextIndex = (currentIndex + 1) % members.length;
-      return {
-        success: true,
-        assignedMember,
-        nextMember: members[nextIndex],
-        isAlreadyPending: true
-      };
+      const assignedAt = state.pendingTask.assignedAt ? new Date(state.pendingTask.assignedAt) : null;
+      const isStaleFromPreviousDay = assignedAt ? !isSameDay(assignedAt, now) : false;
+
+      if (isStaleFromPreviousDay) {
+        // Task from yesterday was never marked done or cleared - advance rotation to next member
+        console.log('[RoundRobin] Auto-expiring stale pending task from previous day and advancing turn.');
+        currentIndex = (currentIndex + 1) % members.length;
+        state.currentIndex = currentIndex;
+        state.pendingTask = null;
+      } else {
+        // Active same-day pending task
+        const assignedMember = state.pendingTask.assignedMember;
+        const nextIndex = (currentIndex + 1) % members.length;
+        return {
+          success: true,
+          assignedMember,
+          nextMember: members[nextIndex],
+          isAlreadyPending: true
+        };
+      }
     }
 
     const assignedMember = members[currentIndex];
@@ -190,11 +203,11 @@ export const roundRobinService = {
 
     state.pendingTask = {
       assignedMember,
-      assignedAt: new Date().toISOString(),
+      assignedAt: now.toISOString(),
       triggeredBy,
       status: 'PENDING'
     };
-    state.lastTriggered = new Date().toISOString();
+    state.lastTriggered = now.toISOString();
     storage.saveState(state);
 
     return {

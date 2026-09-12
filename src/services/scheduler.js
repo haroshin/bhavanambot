@@ -18,11 +18,13 @@ export function setupScheduler(bot) {
     return;
   }
 
+  const timezone = config.timezone || 'Asia/Kolkata';
+
   // ----------------------------------------------------
   // 1. Daily 5:30 PM Water Motor Reminder (30 17 * * *)
   // ----------------------------------------------------
   const motorCron = '30 17 * * *';
-  console.log(`[Scheduler] Daily 5:30 PM Water Motor reminder active (cron: "${motorCron}")`);
+  console.log(`[Scheduler] Daily 5:30 PM Water Motor reminder active (cron: "${motorCron}", timezone: "${timezone}")`);
 
   cron.schedule(motorCron, async () => {
     console.log('[Scheduler] Daily 5:30 PM Water Motor cron job triggered.');
@@ -45,13 +47,13 @@ export function setupScheduler(bot) {
     } catch (err) {
       console.error('[Scheduler] Failed to send scheduled water motor alert:', err);
     }
-  });
+  }, { timezone });
 
   // ----------------------------------------------------
   // 2. Daily 6:30 PM Water Motor Penalty Check (30 18 * * *)
   // ----------------------------------------------------
   const motorPenaltyCron = '30 18 * * *';
-  console.log(`[Scheduler] Daily 6:30 PM Water Motor penalty check active (cron: "${motorPenaltyCron}")`);
+  console.log(`[Scheduler] Daily 6:30 PM Water Motor penalty check active (cron: "${motorPenaltyCron}", timezone: "${timezone}")`);
 
   cron.schedule(motorPenaltyCron, async () => {
     console.log('[Scheduler] Daily 6:30 PM Water Motor penalty check triggered.');
@@ -69,13 +71,13 @@ export function setupScheduler(bot) {
     } catch (err) {
       console.error('[Scheduler] Error running 6:30 PM motor penalty check:', err);
     }
-  });
+  }, { timezone });
 
   // ----------------------------------------------------
   // 3. Daily 8:00 PM Trash Duty Reminder (0 20 * * *)
   // ----------------------------------------------------
   const trashCron = config.trashScheduleCron || '0 20 * * *';
-  console.log(`[Scheduler] Daily 8:00 PM Trash Duty reminder active (cron: "${trashCron}")`);
+  console.log(`[Scheduler] Daily 8:00 PM Trash Duty reminder active (cron: "${trashCron}", timezone: "${timezone}")`);
 
   cron.schedule(trashCron, async () => {
     console.log('[Scheduler] Daily 8:00 PM Trash Duty cron job triggered.');
@@ -98,13 +100,13 @@ export function setupScheduler(bot) {
     } catch (err) {
       console.error('[Scheduler] Failed to send scheduled trash duty alert:', err);
     }
-  });
+  }, { timezone });
 
   // ----------------------------------------------------
   // 4. Daily 12:00 AM Midnight Trash Penalty Check (0 0 * * *)
   // ----------------------------------------------------
   const midnightCron = '0 0 * * *';
-  console.log(`[Scheduler] Daily 12:00 AM Midnight penalty check active (cron: "${midnightCron}")`);
+  console.log(`[Scheduler] Daily 12:00 AM Midnight penalty check active (cron: "${midnightCron}", timezone: "${timezone}")`);
 
   cron.schedule(midnightCron, async () => {
     console.log('[Scheduler] Daily 12:00 AM Midnight penalty cron job triggered.');
@@ -122,5 +124,5 @@ export function setupScheduler(bot) {
     } catch (err) {
       console.error('[Scheduler] Error running midnight trash penalty check:', err);
     }
-  });
+  }, { timezone });
 }

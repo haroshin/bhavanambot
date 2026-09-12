@@ -14,6 +14,7 @@ export const config = {
   targetChatId: process.env.TARGET_CHAT_ID || '',
   enableScheduledReminders: process.env.ENABLE_SCHEDULED_REMINDERS !== 'false', // Default enabled
   trashScheduleCron: process.env.TRASH_SCHEDULE_CRON || '0 20 * * *', // Default: Everyday at 8 PM (20:00)
+  timezone: process.env.TZ || 'Asia/Kolkata',
   rootDir,
   dataDir: path.join(rootDir, 'data'),
   membersFilePath: path.join(rootDir, 'data', 'members.json'),

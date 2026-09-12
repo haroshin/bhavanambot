@@ -161,6 +161,7 @@ export const fineService = {
    */
   checkTrashMidnightPenalty() {
     const state = storage.getState();
+    const members = storage.getMembers();
     let penaltyInfo = null;
 
     if (state.pendingTask && state.pendingTask.status === 'PENDING') {
@@ -175,7 +176,14 @@ export const fineService = {
         newBalance: newBal
       };
 
+      // Advance rotation to next member since current turn was uncompleted and fined
+      if (members.length > 0) {
+        let currentIndex = (state.currentIndex || 0) % members.length;
+        state.currentIndex = (currentIndex + 1) % members.length;
+      }
+
       state.pendingTask = null; // Clear pending trash task
+      state.pendingMotorTask = null;
       storage.saveState(state);
     }
 

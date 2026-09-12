@@ -40,9 +40,9 @@ try {
   // Test 5: Skip Turn
   const skipRes = roundRobinService.skipTurn();
   assert.strictEqual(skipRes.skippedMember.name, 'haroshin');
-  assert.strictEqual(skipRes.nextMember.name, 'azim');
+  assert.strictEqual(skipRes.nextMember.name, 'Azim');
   assert.strictEqual(skipRes.newIndex, 2);
-  console.log('✅ Test 5 Passed: Skip turn skipped haroshin and set next pointer to azim.');
+  console.log('✅ Test 5 Passed: Skip turn skipped haroshin and set next pointer to Azim.');
 
   // Test 6: Set Turn manually
   const setTurnRes = roundRobinService.setTurn('Yohaan_libert');
@@ -61,6 +61,34 @@ try {
   assert.strictEqual(firstItem.member.name, 'haroshin');
   assert.strictEqual(firstItem.isTomorrow, true, 'haroshin should be scheduled for tomorrow after today duty is completed');
   console.log('✅ Test 7 Passed: Schedule calendar correctly assigns tomorrow date to haroshin after today duty completion.');
+
+  // Test 8: Midnight penalty check advances index
+  const { fineService } = await import('../src/services/fineService.js');
+  storage.saveState({ currentIndex: 0, lastTriggered: null, history: [], pendingTask: null });
+  roundRobinService.triggerDuty('Test 8');
+  const penaltyRes = fineService.checkTrashMidnightPenalty();
+  assert.strictEqual(penaltyRes.member.name, 'Arjun');
+  const stateAfterPenalty = storage.getState();
+  assert.strictEqual(stateAfterPenalty.currentIndex, 1, 'Index should advance to 1 (haroshin) after midnight penalty');
+  console.log('✅ Test 8 Passed: Midnight penalty check fined Arjun and correctly advanced turn index to haroshin.');
+
+  // Test 9: Stale pending task from previous day auto-expires on next triggerDuty
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  storage.saveState({
+    currentIndex: 0,
+    lastTriggered: yesterday.toISOString(),
+    history: [],
+    pendingTask: {
+      assignedMember: originalMembers[0],
+      assignedAt: yesterday.toISOString(),
+      triggeredBy: 'Yesterday',
+      status: 'PENDING'
+    }
+  });
+  const newDayTrigger = roundRobinService.triggerDuty('New Day Trigger');
+  assert.strictEqual(newDayTrigger.assignedMember.name, 'haroshin', 'New day trigger should auto-expire yesterday task and assign haroshin');
+  console.log('✅ Test 9 Passed: Stale task from previous day was auto-expired and turn advanced to haroshin.');
 
   console.log('\n🎉 ALL UNIT TESTS PASSED SUCCESSFULLY!');
 } finally {

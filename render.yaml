@@ -1,5 +1,5 @@
 services:
-  - type: web
+  - type: worker
     name: bhavanam-telegram-bot
     env: docker
     plan: free
@@ -14,3 +14,5 @@ services:
         value: "true"
       - key: TRASH_SCHEDULE_CRON
         value: "0 20 * * *"
+      - key: TZ
+        value: "Asia/Kolkata"
